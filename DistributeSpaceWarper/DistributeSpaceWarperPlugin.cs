@@ -13,11 +13,16 @@ namespace DistributeSpaceWarper
         public const string pluginName = "Distribute Space Warper";
         public const string pluginVersion = "1.0.0.0";
 
+        public void Awake()
+        {
+            var harmony = new Harmony(pluginGuid);
+
+            harmony.PatchAll(typeof(DistributeSpaceWarperPlugin));
+            harmony.PatchAll(typeof(Patch_StationComponent));
+        }
         public void Start()
         {
             Logger = base.Logger;
-            DistributeSpaceWarper.Config.Init(Config);
-            Harmony.CreateAndPatchAll(typeof(Patch_StationComponent));
             Logger.LogInfo("Loaded!");
         }
     }
