@@ -35,11 +35,13 @@ namespace DistributeSpaceWarper
                     if (stationComponent.warperNecessary == true && stationComponent.storage[warperSlot].localLogic != ELogisticStorage.Demand)
                     {
                         stationComponent.storage[warperSlot].localLogic = ELogisticStorage.Demand;
+                        stationComponent.storage[warperSlot].max = 100;
                         needRefreshTraffic = true;
                     }
                     else if (stationComponent.warperNecessary == false && stationComponent.storage[warperSlot].localLogic != ELogisticStorage.Supply)
                     {
                         stationComponent.storage[warperSlot].localLogic = ELogisticStorage.Supply;
+                        stationComponent.storage[warperSlot].max = 100;
                         needRefreshTraffic = true;
                     }
                 }
