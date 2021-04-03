@@ -4,4 +4,6 @@
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CDSPMods_005CDSP_002DMods_005CLibraries_005CBepInEx_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CDSPMods_005CDSP_002DMods_005CLibraries_005CUnityEngine_002ECoreModule_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CDSPMods_005CDSP_002DMods_005CLibraries_005CUnityEngine_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CDSPMods_005CLibraries_005CAssembly_002DCSharp_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CGames_005CSteamLibrary_005Csteamapps_005Ccommon_005CDyson_0020Sphere_0020Program_005CDSPGAME_005FData_005CManaged_005CAssembly_002DCSharp_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Warper/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

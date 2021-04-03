@@ -86,7 +86,9 @@ namespace DistributeSpaceWarper
                     return false;
                 }
             }
-            __instance.stationWindow.transport.SetStationStorage(__instance.station.id, __instance.index, itemProto.ID, itemProto2.prefabDesc.stationMaxItemCount, ELogisticStorage.Supply, (!__instance.station.isStellar) ? ELogisticStorage.None : ELogisticStorage.Supply, GameMain.mainPlayer.package);
+            __instance.stationWindow.transport.SetStationStorage(__instance.station.id, __instance.index, 
+                itemProto.ID, itemProto2.prefabDesc.stationMaxItemCount, ELogisticStorage.Supply,
+                (!__instance.station.isStellar) ? ELogisticStorage.None : ELogisticStorage.Supply, GameMain.mainPlayer);
             return false;
         }
         
