@@ -1,17 +1,21 @@
-using System;
 using HarmonyLib;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace DistributeSpaceWarper
 {
-    static class Patch_StationComponent
+    static class PatchStationComponent
     {
         [HarmonyPatch(typeof(PlanetTransport), "GameTick", typeof(long), typeof(bool))]
         [HarmonyPostfix]
         public static void GameTick_Postfix(PlanetTransport __instance)
         {
-            int warperId = 1210;
+            ELogisticStorage defaultLocalMode = Config.General.WarperLocalMode.Value;
+            ELogisticStorage defaultRemoteMode = Config.General.WarperRemoteMode.Value;
+            bool warpersRequiredToggleAutomation = Config.General.WarpersRequiredToggleAutomation.Value;
+            bool showWarperSlot =  Config.General.ShowWarperSlot.Value;
+            int defaultMaxValue = Config.General.WarperMaxValue.Value;
+            int warperId = ItemProto.kWarperId;
             int IlsId = 2104;
             bool needRefreshTraffic = false;
             PrefabDesc prefabDesc = LDB.items.Select(IlsId).prefabDesc;
@@ -28,21 +32,29 @@ namespace DistributeSpaceWarper
                     if (stationComponent.storage.Length < prefabDesc.stationMaxItemKinds + 1)
                     {
                         List<StationStore> storeCopy = new List<StationStore>(stationComponent.storage);
-                        storeCopy.Add(new StationStore(warperId, 0,0,0,100, ELogisticStorage.Demand, ELogisticStorage.None));
+                        storeCopy.Add(new StationStore(warperId, 0,0,0,defaultMaxValue, defaultLocalMode, defaultRemoteMode));
                         stationComponent.storage = storeCopy.ToArray();
                         needRefreshTraffic = true;
                     }
-                    if (stationComponent.warperNecessary == true && stationComponent.storage[warperSlot].localLogic != ELogisticStorage.Demand)
+                    if (showWarperSlot == true && stationComponent.storage[warperSlot].itemId != warperId)
                     {
-                        stationComponent.storage[warperSlot].localLogic = ELogisticStorage.Demand;
-                        stationComponent.storage[warperSlot].max = 100;
+                        stationComponent.storage[warperSlot] = new StationStore(warperId, 0, 0, 0, defaultMaxValue, defaultLocalMode, defaultRemoteMode);
                         needRefreshTraffic = true;
                     }
-                    else if (stationComponent.warperNecessary == false && stationComponent.storage[warperSlot].localLogic != ELogisticStorage.Supply)
+                    if (warpersRequiredToggleAutomation == true)
                     {
-                        stationComponent.storage[warperSlot].localLogic = ELogisticStorage.Supply;
-                        stationComponent.storage[warperSlot].max = 100;
-                        needRefreshTraffic = true;
+                        if (stationComponent.warperNecessary == true &&
+                            stationComponent.storage[warperSlot].localLogic != defaultLocalMode)
+                        {
+                            stationComponent.storage[warperSlot].localLogic = defaultLocalMode;
+                            needRefreshTraffic = true;
+                        }
+                        else if (stationComponent.warperNecessary == false &&
+                                 stationComponent.storage[warperSlot].localLogic != ELogisticStorage.Supply)
+                        {
+                            stationComponent.storage[warperSlot].localLogic = ELogisticStorage.Supply;
+                            needRefreshTraffic = true;
+                        }
                     }
                 }
             }
@@ -56,7 +68,7 @@ namespace DistributeSpaceWarper
         [HarmonyPatch(typeof(UIStationStorage), "OnItemPickerReturn", typeof(ItemProto))]
         public static bool OnItemPickerReturn_Prefix(UIStationStorage __instance, ItemProto itemProto)
         {
-            int warperId = 1210;
+            int warperId = ItemProto.kWarperId;
             int IlsId = 2104;
             PrefabDesc prefabDesc = LDB.items.Select(IlsId).prefabDesc;
             int warperSlot = prefabDesc.stationMaxItemKinds;
@@ -97,11 +109,16 @@ namespace DistributeSpaceWarper
         [HarmonyPatch(typeof(UIStationWindow), "_OnCreate")]
         public static bool _OnCreatePrefix(UIStationWindow __instance, ref UIStationStorage[] ___storageUIs, UIStationStorage ___storageUIPrefab)
         {
-            ___storageUIs = new UIStationStorage[5];
-            for (int i = 0; i < 5; i++)
+            bool showWarperSlot =  Config.General.ShowWarperSlot.Value;
+            if (showWarperSlot == true)
             {
-                ___storageUIs[i] = UnityEngine.Object.Instantiate(___storageUIPrefab, ___storageUIPrefab.transform.parent);
-                ((RectTransform) ___storageUIs[i].transform).anchoredPosition = new Vector2(40f, (float)(-90 - 76 * i));
+                return true;
+            }
+            ___storageUIs = new UIStationStorage[5];
+            for (int i = 0; i < ___storageUIs.Length; i++)
+            {
+                ___storageUIs[i] = Object.Instantiate(___storageUIPrefab, ___storageUIPrefab.transform.parent);
+                ((RectTransform) ___storageUIs[i].transform).anchoredPosition = new Vector2(40f, -90 - 76 * i);
                 ___storageUIs[i].stationWindow = __instance;
                 ___storageUIs[i]._Create();
             }

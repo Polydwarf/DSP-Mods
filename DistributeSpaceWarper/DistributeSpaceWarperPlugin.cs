@@ -4,26 +4,26 @@ using HarmonyLib;
 
 namespace DistributeSpaceWarper
 {
-    [BepInPlugin( pluginGuid, pluginName, pluginVersion)]
+    [BepInPlugin( PluginGuid, PluginName, PluginVersion)]
     [BepInProcess("DSPGAME.exe")]
     public class DistributeSpaceWarperPlugin : BaseUnityPlugin
     {
-        public new static ManualLogSource Logger;
-        public const string pluginGuid = "ShadowAngel.DSP.DistributeSpaceWarper";
-        public const string pluginName = "Distribute Space Warper";
-        public const string pluginVersion = "1.0.0.0";
+        private static ManualLogSource _logger;
+        private const string PluginGuid = "ShadowAngel.DSP.DistributeSpaceWarper";
+        private const string PluginName = "Distribute Space Warper";
+        private const string PluginVersion = "1.0.2.1";
 
         public void Awake()
         {
-            var harmony = new Harmony(pluginGuid);
-
+            Harmony harmony = new Harmony(PluginGuid);
+            DistributeSpaceWarper.Config.Init(Config);
             harmony.PatchAll(typeof(DistributeSpaceWarperPlugin));
-            harmony.PatchAll(typeof(Patch_StationComponent));
+            harmony.PatchAll(typeof(PatchStationComponent));
         }
         public void Start()
         {
-            Logger = base.Logger;
-            Logger.LogInfo("Loaded!");
+            _logger = base.Logger;
+            _logger.LogInfo("Loaded!");
         }
     }
 }
