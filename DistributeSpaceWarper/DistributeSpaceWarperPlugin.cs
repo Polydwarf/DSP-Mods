@@ -11,7 +11,7 @@ namespace DistributeSpaceWarper
         private static ManualLogSource _logger;
         private const string PluginGuid = "ShadowAngel.DSP.DistributeSpaceWarper";
         private const string PluginName = "Distribute Space Warper";
-        private const string PluginVersion = "1.0.2.1";
+        private const string PluginVersion = "1.0.3.0";
 
         public void Awake()
         {
