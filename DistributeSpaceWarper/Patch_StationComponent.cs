@@ -1,6 +1,9 @@
+using System;
 using HarmonyLib;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace DistributeSpaceWarper
 {
@@ -19,7 +22,7 @@ namespace DistributeSpaceWarper
             int IlsId = 2104;
             bool needRefreshTraffic = false;
             PrefabDesc prefabDesc = LDB.items.Select(IlsId).prefabDesc;
-            int warperSlot = prefabDesc.stationMaxItemKinds;
+            int warperSlotIndex = prefabDesc.stationMaxItemKinds;
             for (int j = 1; j < __instance.stationCursor; j++)
             {
                 if (__instance.stationPool[j] != null && __instance.stationPool[j].id == j)
@@ -36,25 +39,40 @@ namespace DistributeSpaceWarper
                         stationComponent.storage = storeCopy.ToArray();
                         needRefreshTraffic = true;
                     }
-                    if (showWarperSlot == true && stationComponent.storage[warperSlot].itemId != warperId)
+                    if (showWarperSlot == true && stationComponent.storage[warperSlotIndex].itemId != warperId)
                     {
-                        stationComponent.storage[warperSlot] = new StationStore(warperId, 0, 0, 0, defaultMaxValue, defaultLocalMode, defaultRemoteMode);
+                        stationComponent.storage[warperSlotIndex] = new StationStore(warperId, 0, 0, 0, defaultMaxValue, defaultLocalMode, defaultRemoteMode);
                         needRefreshTraffic = true;
                     }
                     if (warpersRequiredToggleAutomation == true)
                     {
                         if (stationComponent.warperNecessary == true &&
-                            stationComponent.storage[warperSlot].localLogic != defaultLocalMode)
+                            stationComponent.storage[warperSlotIndex].localLogic != defaultLocalMode)
                         {
-                            stationComponent.storage[warperSlot].localLogic = defaultLocalMode;
+                            stationComponent.storage[warperSlotIndex].localLogic = defaultLocalMode;
                             needRefreshTraffic = true;
                         }
                         else if (stationComponent.warperNecessary == false &&
-                                 stationComponent.storage[warperSlot].localLogic != ELogisticStorage.Supply)
+                                 stationComponent.storage[warperSlotIndex].localLogic != ELogisticStorage.Supply)
                         {
-                            stationComponent.storage[warperSlot].localLogic = ELogisticStorage.Supply;
+                            stationComponent.storage[warperSlotIndex].localLogic = ELogisticStorage.Supply;
                             needRefreshTraffic = true;
                         }
+                    }
+                    int manualWarperStoreIndex = Array.FindIndex(stationComponent.storage, store => store.itemId == warperId);
+                    if (manualWarperStoreIndex != -1 
+                        && manualWarperStoreIndex != warperSlotIndex
+                        && stationComponent.storage[warperSlotIndex].count < stationComponent.storage[warperSlotIndex].max 
+                        && stationComponent.storage[manualWarperStoreIndex].count > stationComponent.storage[manualWarperStoreIndex].max)
+                    {
+                        int warperOverflowInManualSlot = stationComponent.storage[manualWarperStoreIndex].count - stationComponent.storage[manualWarperStoreIndex].max;
+                        int warperNeedInAutomaticSlot = stationComponent.storage[warperSlotIndex].max - stationComponent.storage[warperSlotIndex].count;
+                        int transferAmount = Mathf.Min(warperNeedInAutomaticSlot, warperOverflowInManualSlot);
+                        stationComponent.storage[manualWarperStoreIndex].count -= transferAmount;
+                        stationComponent.storage[warperSlotIndex].count += transferAmount;
+                        stationComponent.storage[warperSlotIndex].localOrder = 0;
+                        stationComponent.storage[warperSlotIndex].remoteOrder = 0;
+                        needRefreshTraffic = true;
                     }
                 }
             }
@@ -71,7 +89,7 @@ namespace DistributeSpaceWarper
             int warperId = ItemProto.kWarperId;
             int IlsId = 2104;
             PrefabDesc prefabDesc = LDB.items.Select(IlsId).prefabDesc;
-            int warperSlot = prefabDesc.stationMaxItemKinds;
+            int warperSlotIndex = prefabDesc.stationMaxItemKinds;
             
             if (itemProto == null)
             {
@@ -90,7 +108,7 @@ namespace DistributeSpaceWarper
             {
                 if (__instance.station.storage[i].itemId == itemProto.ID)
                 {
-                    if (__instance.station.isStellar == true && __instance.station.isCollector == false && i == warperSlot && itemProto.ID == warperId)
+                    if (__instance.station.isStellar == true && __instance.station.isCollector == false && i == warperSlotIndex && itemProto.ID == warperId)
                     {
                         continue;
                     }
