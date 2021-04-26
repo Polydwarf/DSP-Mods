@@ -1,11 +1,151 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace StationRangeLimiter
 {
     static class Patch
     {
+	    private class ModData
+	    {
+		    public List<int> EnforcedLocalRangeStations = new List<int>();
+		    public List<int> EnforcedRemoteRangeStations = new List<int>(); 
+	    }
+	    private static ModData _data = new ModData();  
+	   
+
+	    [HarmonyPostfix]
+	    [HarmonyPatch(typeof(GameSave), "LoadCurrentGame", typeof(string))]
+	    public static void LoadCurrentGame_Postfix(string saveName)
+	    {
+		    string path = Application.persistentDataPath + "/" + "SRL_Mod_" + saveName + ".lst";
+		    if (File.Exists(path))
+		    {
+			    string jsonString = File.ReadAllText(path);
+			    JsonUtility.FromJsonOverwrite(jsonString, _data);
+		    }
+	    }
+	    
+	    [HarmonyPostfix]
+	    [HarmonyPatch(typeof(GameSave), "SaveCurrentGame", typeof(string))]
+	    
+	    public static void SaveCurrentGame_Postfix(string saveName)
+	    {
+		    string path = Application.persistentDataPath + "/" + "SRL_Mod_" + saveName + ".lst";
+		    string jsonString = JsonUtility.ToJson(_data);
+		    File.WriteAllText(path, jsonString);
+	    }
+
+	    [HarmonyPostfix]
+	    [HarmonyPatch(typeof(UIStationWindow), "_OnUpdate")]
+	    public static void _OnUpdate_Postfix(UIStationWindow __instance, UIButton ___warperNecessaryButton, Image ___warperNecessaryCheck)
+	    {
+		    UIButton enforceRemoteRangeButton =
+			    ___warperNecessaryButton.transform.parent.Find("EnforceRemoteRangeButton").GetComponent<UIButton>();
+		    UIButton enforceLocalRangeButton =
+			    ___warperNecessaryButton.transform.parent.Find("EnforceLocalRangeButton").GetComponent<UIButton>();
+		    StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+		    bool enforceRemoteRange = _data.EnforcedRemoteRangeStations.Contains(stationComponent.entityId);
+		    bool enforceLocalRange = _data.EnforcedLocalRangeStations.Contains(stationComponent.entityId);
+		    enforceLocalRangeButton.transform.Find(___warperNecessaryCheck.name).GetComponent<Image>().enabled = enforceLocalRange == true;
+		    enforceRemoteRangeButton.transform.Find(___warperNecessaryCheck.name).GetComponent<Image>().enabled = enforceRemoteRange == true;
+	    }
+	    
+	    [HarmonyPostfix]
+	    [HarmonyPatch(typeof(UIStationWindow), "_OnRegEvent")]
+	    public static void _OnRegEvent_Postfix(UIStationWindow __instance, bool ___event_lock, UIButton ___warperNecessaryButton, Image ___warperNecessaryCheck)
+	    {
+		    UIButton enforceRemoteRangeButton =
+			    ___warperNecessaryButton.transform.parent.Find("EnforceRemoteRangeButton").GetComponent<UIButton>();
+		    UIButton enforceLocalRangeButton =
+			    ___warperNecessaryButton.transform.parent.Find("EnforceLocalRangeButton").GetComponent<UIButton>();
+		    enforceRemoteRangeButton.onClick += (i) =>
+		    {
+			    OnEnforceRemoteRangeButtonClick(enforceRemoteRangeButton, ___warperNecessaryCheck, __instance, ___event_lock);
+		    };
+		    enforceLocalRangeButton.onClick += (i) =>
+		    {
+			    OnEnforceLocalRangeButtonClick(enforceLocalRangeButton, ___warperNecessaryCheck, __instance, ___event_lock);
+		    };
+	    }
+
+	    [HarmonyPostfix]
+	    [HarmonyPatch(typeof(UIStationWindow), "_OnUnregEvent")]
+	    public static void _OnUnregEvent_Postfix(UIStationWindow __instance, bool ___event_lock, UIButton ___warperNecessaryButton, Image ___warperNecessaryCheck)
+	    {
+		    UIButton enforceRemoteRangeButton =
+			    ___warperNecessaryButton.transform.parent.Find("EnforceRemoteRangeButton").GetComponent<UIButton>();
+		    UIButton enforceLocalRangeButton =
+			    ___warperNecessaryButton.transform.parent.Find("EnforceLocalRangeButton").GetComponent<UIButton>();
+		    enforceRemoteRangeButton.onClick -= (i) =>
+		    {
+			    OnEnforceRemoteRangeButtonClick(enforceRemoteRangeButton, ___warperNecessaryCheck, __instance, ___event_lock);
+		    };
+		    enforceLocalRangeButton.onClick -= (i) =>
+		    {
+			    OnEnforceLocalRangeButtonClick(enforceLocalRangeButton, ___warperNecessaryCheck, __instance, ___event_lock);
+		    };
+	    }
+	    
+	    private static void OnEnforceRemoteRangeButtonClick(UIButton enforceRemoteRangeButton, Image warperNecessaryCheck, UIStationWindow instance, bool event_lock)
+	    {
+		    if (event_lock || instance.stationId == 0 || instance.factory == null)
+			    return;
+		    StationComponent stationComponent = instance.transport.stationPool[instance.stationId];
+		    if (stationComponent == null || stationComponent.id != instance.stationId)
+			    return;
+		    bool enforceRemoteRange = _data.EnforcedRemoteRangeStations.Contains(stationComponent.entityId);
+		    if (enforceRemoteRange == true)
+		    {
+			    _data.EnforcedRemoteRangeStations.Remove(stationComponent.entityId);
+		    }
+		    else
+		    {
+			    _data.EnforcedRemoteRangeStations.Add(stationComponent.entityId);
+		    }
+		    enforceRemoteRangeButton.transform.Find(warperNecessaryCheck.name).GetComponent<Image>().enabled = enforceRemoteRange == false;
+	    }
+
+	    private static void OnEnforceLocalRangeButtonClick(UIButton enforceLocalRangeButton, Image warperNecessaryCheck, UIStationWindow instance, bool event_lock)
+	    {
+		    if (event_lock || instance.stationId == 0 || instance.factory == null)
+			    return;
+		    StationComponent stationComponent = instance.transport.stationPool[instance.stationId];
+		    if (stationComponent == null || stationComponent.id != instance.stationId)
+			    return;
+		    bool enforceLocalRange = _data.EnforcedLocalRangeStations.Contains(stationComponent.entityId);
+		    if (enforceLocalRange == true)
+		    {
+			    _data.EnforcedLocalRangeStations.Remove(stationComponent.entityId);
+		    }
+		    else
+		    {
+			    _data.EnforcedLocalRangeStations.Add(stationComponent.entityId);
+		    }
+		    enforceLocalRangeButton.transform.Find(warperNecessaryCheck.name).GetComponent<Image>().enabled = enforceLocalRange == false;
+	    }
+	            
+	    [HarmonyPostfix]
+	    [HarmonyPatch(typeof(UIStationWindow), "_OnCreate")]
+	    public static void _OnCreatePostfix(UIStationWindow __instance, UIButton ___warperNecessaryButton, Image ___warperNecessaryCheck)
+	    {
+		    UIButton enforceRemoteRangeButton = UnityEngine.Object.Instantiate(___warperNecessaryButton, ___warperNecessaryButton.transform.parent);
+		    RectTransform enforceRemoteRangeButtonRectTransform = (RectTransform) enforceRemoteRangeButton.transform;
+		    enforceRemoteRangeButtonRectTransform.anchoredPosition -= new Vector2(0, 40);
+		    enforceRemoteRangeButton.name = "EnforceRemoteRangeButton";
+		    UnityEngine.Object.Destroy( enforceRemoteRangeButton.GetComponentInChildren<Localizer>());
+		    enforceRemoteRangeButton.GetComponentInChildren<Text>().text = "Enforce remote range";
+		    UIButton enforceLocalRangeButton = UnityEngine.Object.Instantiate(___warperNecessaryButton, ___warperNecessaryButton.transform.parent);
+		    RectTransform enforceLocalRangeButtonRectTransform = (RectTransform) enforceLocalRangeButton.transform;
+		    enforceLocalRangeButton.name = "EnforceLocalRangeButton";
+		    enforceLocalRangeButtonRectTransform.anchoredPosition -= new Vector2(0, 20);
+		    UnityEngine.Object.Destroy( enforceLocalRangeButton.GetComponentInChildren<Localizer>());
+		    enforceLocalRangeButton.GetComponentInChildren<Text>().text = "Enforce local range";
+	    }
+
 
 	    [HarmonyPrefix]
 	    [HarmonyPatch(typeof(StationComponent), "InternalTickRemote", typeof(int), typeof(double), typeof(float),
@@ -72,13 +212,14 @@ namespace StationRangeLimiter
 							           (double) astroPoses[stationComponent.planetId].uRadius;
 							    bool flag2 = num4 < __instance.tripRangeShips;
 							    bool demandRemoteRange = num4 < stationComponent.tripRangeShips;
+							    bool enforceRemoteRange = _data.EnforcedRemoteRangeStations.Contains(stationComponent.entityId);
 							    flag3 = (num4 >= __instance.warpEnableDist);
 							    if (__instance.warperNecessary && flag3 && (__instance.warperCount < 2 || !flag))
 							    {
 								    flag2 = false;
 							    }
 
-							    if ((demandRemoteRange && flag2) &&
+							    if ((enforceRemoteRange && demandRemoteRange && flag2 || enforceRemoteRange == false && flag2) &&
 							        stationComponent.storage[supplyDemandPair.demandIndex].remoteDemandCount > 0 &&
 							        stationComponent.storage[supplyDemandPair.demandIndex].totalDemandCount > 0)
 							    {
@@ -100,6 +241,7 @@ namespace StationRangeLimiter
 							           (double) astroPoses[stationComponent2.planetId].uRadius;
 							    bool flag4 = num5 < __instance.tripRangeShips;
 							    bool supplyRemoteRange = num5 < stationComponent2.tripRangeShips;
+							    bool enforceRemoteRange = _data.EnforcedRemoteRangeStations.Contains(stationComponent2.entityId);
 							    if (flag4 && !__instance.includeOrbitCollector && stationComponent2.isCollector)
 							    {
 								    flag4 = false;
@@ -116,7 +258,7 @@ namespace StationRangeLimiter
 								    num3 = stationComponent2.storage[supplyDemandPair.supplyIndex].max - 1;
 							    }
 
-							    if ((supplyRemoteRange && flag4) &&
+							    if ((enforceRemoteRange && supplyRemoteRange && flag4 || enforceRemoteRange == false && flag4) &&
 							        stationComponent2.storage[supplyDemandPair.supplyIndex].count >= num3 &&
 							        stationComponent2.storage[supplyDemandPair.supplyIndex].remoteSupplyCount >= num3 &&
 							        stationComponent2.storage[supplyDemandPair.supplyIndex].totalSupplyCount >= num3)
@@ -1231,7 +1373,9 @@ namespace StationRangeLimiter
 							    {
 								    num6 = 1.0;
 							    }
-							    if ((num6 >= __instance.tripRangeDrones - 1E-06 && num6 >= stationComponent.tripRangeDrones - 1E-06) &&
+							    bool enforceLocalRange = _data.EnforcedLocalRangeStations.Contains(stationComponent.entityId);
+							    if ((enforceLocalRange == false && num6 >= __instance.tripRangeDrones - 1E-06 
+							         ||  enforceLocalRange == true && num6 >= __instance.tripRangeDrones - 1E-06 && num6 >= stationComponent.tripRangeDrones - 1E-06) &&
 							        stationComponent.storage[supplyDemandPair.demandIndex].localDemandCount > 0 &&
 							        stationComponent.storage[supplyDemandPair.demandIndex].totalDemandCount > 0)
 							    {
@@ -1269,7 +1413,9 @@ namespace StationRangeLimiter
 							    {
 								    num2 = stationComponent2.storage[supplyDemandPair.supplyIndex].max - 1;
 							    }
-							    if ((num10 >= __instance.tripRangeDrones - 1E-06 && num10 >= stationComponent2.tripRangeDrones - 1E-06) &&
+							    bool enforceLocalRange = _data.EnforcedLocalRangeStations.Contains(stationComponent2.entityId);
+							    if ((enforceLocalRange == false && num10 >= __instance.tripRangeDrones - 1E-06 
+							         || enforceLocalRange == true &&  num10 >= __instance.tripRangeDrones - 1E-06 &&  num10 >= stationComponent2.tripRangeDrones - 1E-06) &&
 							        stationComponent2.storage[supplyDemandPair.supplyIndex].count > num2 &&
 							        stationComponent2.storage[supplyDemandPair.supplyIndex].localSupplyCount > num2 &&
 							        stationComponent2.storage[supplyDemandPair.supplyIndex].totalSupplyCount > num2)

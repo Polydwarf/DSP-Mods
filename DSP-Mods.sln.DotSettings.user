@@ -5,7 +5,16 @@
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CDSPMods_005CDSP_002DMods_005CLibraries_005CUnityEngine_002ECoreModule_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CDSPMods_005CDSP_002DMods_005CLibraries_005CUnityEngine_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CDSPMods_005CLibraries_005CAssembly_002DCSharp_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CDSPMods_005CLibraries_005CUnityEngine_002EJSONSerializeModule_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CDSPMods_005CLibraries_005CUnityEngine_002EUI_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CGames_005CSteamLibrary_005Csteamapps_005Ccommon_005CDyson_0020Sphere_0020Program_005CDSPGAME_005FData_005CManaged_005CAssembly_002DCSharp_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;Assembly Path="D:\DSPMods\Libraries\BepInEx.dll" /&gt;&#xD;
+  &lt;Assembly Path="D:\DSPMods\Libraries\UnityEngine.CoreModule.dll" /&gt;&#xD;
+  &lt;Assembly Path="D:\DSPMods\Libraries\UnityEngine.dll" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String>
 	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=dd23704e_002D3c0c_002D4d6b_002D8eb1_002Df847cfb2bc2d_0023DistributeSpaceWarper/@EntryIndexedValue">True</s:Boolean>
+	
+	
 	
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Warper/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>
