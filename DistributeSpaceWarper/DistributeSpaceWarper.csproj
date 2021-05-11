@@ -54,8 +54,8 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Config.cs" />
-        <Compile Include="DistributeSpaceWarperPlugin.cs" />
-        <Compile Include="Patch_StationComponent.cs" />
+        <Compile Include="Plugin.cs" />
+        <Compile Include="Patch.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

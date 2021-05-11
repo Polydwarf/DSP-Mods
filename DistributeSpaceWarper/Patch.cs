@@ -1,26 +1,80 @@
 using System;
 using HarmonyLib;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace DistributeSpaceWarper
 {
-    static class PatchStationComponent
+    static class Patch
     {
+        private static bool ModDisabled => Config.Utility.DisableMod.Value == true || Config.Utility.UninstallMod.Value == true;
+        private static int _ilsId = 2104;
+
+        [HarmonyPatch(typeof(PlanetTransport), "Import", typeof(BinaryReader))]
+        [HarmonyPostfix]
+        public static void PlanetTransport_Import_Postfix(BinaryReader r, PlanetTransport __instance)
+        {
+            if (Config.Utility.UninstallMod.Value == true)
+            {
+                int warperId = ItemProto.kWarperId;
+                PrefabDesc prefabDesc = LDB.items.Select(_ilsId).prefabDesc;
+                UninstallMod(__instance, prefabDesc, warperId);
+            }
+        }
         
+        
+        private static void UninstallMod(PlanetTransport instance, PrefabDesc prefabDesc, int warperId)
+        {
+            int warperSlotIndex = prefabDesc.stationMaxItemKinds;
+            for (int j = 1; j < instance.stationCursor; j++)
+            {
+                if (instance.stationPool[j] != null && instance.stationPool[j].id == j)
+                {
+                    StationComponent stationComponent = instance.stationPool[j];
+                    if (stationComponent.isCollector == true || stationComponent.isStellar == false)
+                    {
+                        continue;
+                    }
+                    if (stationComponent.storage.Length > prefabDesc.stationMaxItemKinds
+                        && stationComponent.storage.Last().itemId == warperId)
+                    {
+                        instance.SetStationStorage(
+                            stationComponent.id, 
+                            warperSlotIndex, 
+                            0, 0, 
+                            ELogisticStorage.None, 
+                            ELogisticStorage.None, 
+                            GameMain.mainPlayer);
+                        List<StationStore> storeCopy = new List<StationStore>(stationComponent.storage);
+                        storeCopy.RemoveAt(warperSlotIndex);
+                        stationComponent.storage = storeCopy.ToArray();
+                    }
+                    instance.RefreshTraffic();
+                    instance.gameData.galacticTransport.RefreshTraffic(stationComponent.gid);
+                    stationComponent.UpdateNeeds();
+                }
+            }
+        }
+
+
         [HarmonyPatch(typeof(PlanetTransport), "GameTick", typeof(long), typeof(bool))]
         [HarmonyPostfix]
-        public static void GameTick_Postfix(PlanetTransport __instance)
+        public static void PlanetTransport_GameTick_Postfix(PlanetTransport __instance)
         {
+            if (ModDisabled == true)
+            {
+                return;
+            }
             ELogisticStorage defaultLocalMode = Config.General.WarperLocalMode.Value;
             ELogisticStorage defaultRemoteMode = Config.General.WarperRemoteMode.Value;
             bool warpersRequiredToggleAutomation = Config.General.WarpersRequiredToggleAutomation.Value;
             bool showWarperSlot =  Config.General.ShowWarperSlot.Value;
             int defaultMaxValue = Config.General.WarperMaxValue.Value;
             int warperId = ItemProto.kWarperId;
-            int IlsId = 2104;
-            PrefabDesc prefabDesc = LDB.items.Select(IlsId).prefabDesc;
+            PrefabDesc prefabDesc = LDB.items.Select(_ilsId).prefabDesc;
             int warperSlotIndex = prefabDesc.stationMaxItemKinds;
             for (int j = 1; j < __instance.stationCursor; j++)
             {
@@ -136,8 +190,12 @@ namespace DistributeSpaceWarper
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(UIStationStorage), "OnItemPickerReturn", typeof(ItemProto))]
-        public static bool OnItemPickerReturn_Prefix(UIStationStorage __instance, ItemProto itemProto)
+        public static bool UIStationStorage_OnItemPickerReturn_Prefix(UIStationStorage __instance, ItemProto itemProto)
         {
+            if (ModDisabled == true)
+            {
+                return true;
+            }
             int warperId = ItemProto.kWarperId;
             int IlsId = 2104;
             PrefabDesc prefabDesc = LDB.items.Select(IlsId).prefabDesc;
@@ -177,10 +235,10 @@ namespace DistributeSpaceWarper
         
         [HarmonyPrefix]
         [HarmonyPatch(typeof(UIStationWindow), "_OnCreate")]
-        public static bool _OnCreatePrefix(UIStationWindow __instance, ref UIStationStorage[] ___storageUIs, UIStationStorage ___storageUIPrefab)
+        public static bool UIStationWindow_OnCreate_Prefix(UIStationWindow __instance, ref UIStationStorage[] ___storageUIs, UIStationStorage ___storageUIPrefab)
         {
             bool showWarperSlot =  Config.General.ShowWarperSlot.Value;
-            if (showWarperSlot == true)
+            if (showWarperSlot == true || ModDisabled == true)
             {
                 return true;
             }
