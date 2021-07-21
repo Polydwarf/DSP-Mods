@@ -708,7 +708,7 @@ namespace StationRangeLimiter
 				double num45 = 1E+40;
 				int num46 = shipData.planetA / 100 * 100;
 				int num47 = shipData.planetB / 100 * 100;
-				for (int k = num46; k < num46 + 10; k++)
+				for (int k = num46; k < num46 + GameMain.galaxy.PlanetById(num46 + 1).star.planetCount + 1; k++)
 				{
 					float uRadius = astroPoses[k].uRadius;
 					if (uRadius >= 1f)
@@ -726,7 +726,7 @@ namespace StationRangeLimiter
 				}
 				if (num47 != num46)
 				{
-					for (int l = num47; l < num47 + 10; l++)
+					for (int l = num47; l < num47 + GameMain.galaxy.PlanetById(num47 + 1).star.planetCount + 1; l++)
 					{
 						float uRadius2 = astroPoses[l].uRadius;
 						if (uRadius2 >= 1f)
