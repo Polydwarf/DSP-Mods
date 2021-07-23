@@ -1117,7 +1117,7 @@ namespace StationRangeLimiter
 	    [HarmonyPrefix]
 	    [HarmonyPatch(typeof(StationComponent), "InternalTickLocal",
 		    typeof(int), typeof(float), typeof(float), typeof(float), typeof(int), typeof(StationComponent[]))]
-	    public static bool InternalTickLocal(StationComponent __instance, int ____tmp_iter_remote, int timeGene, float dt, float power, float droneSpeed, int droneCarries, StationComponent[] stationPool)
+	    public static bool InternalTickLocal(StationComponent __instance, int ____tmp_iter_local, int timeGene, float dt, float power, float droneSpeed, int droneCarries, StationComponent[] stationPool)
 	    {
 		    __instance.energy += (long) ((int) ((float) __instance.energyPerTick * power));
 		    __instance.energy -= 1000L;
@@ -1132,7 +1132,7 @@ namespace StationRangeLimiter
 
 		    if (timeGene == __instance.gene % 20)
 		    {
-			    ____tmp_iter_remote++;
+			    ____tmp_iter_local++;
 			    if (__instance.localPairCount > 0 && __instance.idleDroneCount > 0)
 			    {
 				    __instance.localPairProcess %= __instance.localPairCount;
@@ -1270,7 +1270,7 @@ namespace StationRangeLimiter
 						    (__instance.workDroneOrders[__instance.workDroneCount].itemId =
 							    __instance.storage[supplyDemandPair.supplyIndex].itemId);
 					    __instance.workDroneDatas[__instance.workDroneCount].itemCount = num14;
-					    __instance.workDroneDatas[__instance.workDroneCount].gene = ____tmp_iter_remote;
+					    __instance.workDroneDatas[__instance.workDroneCount].gene = ____tmp_iter_local;
 					    __instance.workDroneOrders[__instance.workDroneCount].otherStationId = stationComponent.id;
 					    __instance.workDroneOrders[__instance.workDroneCount].thisIndex = supplyDemandPair.supplyIndex;
 					    __instance.workDroneOrders[__instance.workDroneCount].otherIndex = supplyDemandPair.demandIndex;
@@ -1336,7 +1336,7 @@ namespace StationRangeLimiter
 						    (__instance.workDroneOrders[__instance.workDroneCount].itemId =
 							    __instance.storage[supplyDemandPair2.supplyIndex].itemId);
 					    __instance.workDroneDatas[__instance.workDroneCount].itemCount = num20;
-					    __instance.workDroneDatas[__instance.workDroneCount].gene = ____tmp_iter_remote;
+					    __instance.workDroneDatas[__instance.workDroneCount].gene = ____tmp_iter_local;
 					    __instance.workDroneOrders[__instance.workDroneCount].otherStationId = stationComponent2.id;
 					    __instance.workDroneOrders[__instance.workDroneCount].thisIndex = supplyDemandPair2.supplyIndex;
 					    __instance.workDroneOrders[__instance.workDroneCount].otherIndex = supplyDemandPair2.demandIndex;
@@ -1369,7 +1369,7 @@ namespace StationRangeLimiter
 							    (__instance.workDroneOrders[__instance.workDroneCount].itemId =
 								    __instance.storage[supplyDemandPair.demandIndex].itemId);
 						    __instance.workDroneDatas[__instance.workDroneCount].itemCount = 0;
-						    __instance.workDroneDatas[__instance.workDroneCount].gene = ____tmp_iter_remote;
+						    __instance.workDroneDatas[__instance.workDroneCount].gene = ____tmp_iter_local;
 						    __instance.workDroneOrders[__instance.workDroneCount].otherStationId = stationComponent2.id;
 						    __instance.workDroneOrders[__instance.workDroneCount].thisIndex = supplyDemandPair.demandIndex;
 						    __instance.workDroneOrders[__instance.workDroneCount].otherIndex = supplyDemandPair.supplyIndex;
