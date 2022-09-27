@@ -197,8 +197,7 @@ namespace DistributeSpaceWarper
                 return true;
             }
             int warperId = ItemProto.kWarperId;
-            int IlsId = 2104;
-            PrefabDesc prefabDesc = LDB.items.Select(IlsId).prefabDesc;
+            PrefabDesc prefabDesc = LDB.items.Select(_ilsId).prefabDesc;
             int warperSlotIndex = prefabDesc.stationMaxItemKinds;
             
             if (itemProto == null)
