@@ -52,7 +52,8 @@ namespace DistributeSpaceWarper
                         storeCopy.RemoveAt(warperSlotIndex);
                         stationComponent.storage = storeCopy.ToArray();
                     }
-                    instance.RefreshTraffic();
+                    instance.RefreshStationTraffic();
+                    instance.RefreshDispenserTraffic();
                     instance.gameData.galacticTransport.RefreshTraffic(stationComponent.gid);
                     stationComponent.UpdateNeeds();
                 }
@@ -181,7 +182,8 @@ namespace DistributeSpaceWarper
                     if (needRefreshTraffic)
                     {
                         stationComponent.UpdateNeeds();
-                        __instance.RefreshTraffic();
+                        __instance.RefreshStationTraffic();
+                        __instance.RefreshDispenserTraffic();
                         __instance.gameData.galacticTransport.RefreshTraffic(stationComponent.gid);        
                     }
                 }
