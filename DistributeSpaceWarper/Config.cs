@@ -27,11 +27,6 @@
             // General Config //
             ////////////////////
             
-            General.ShowWarperSlot = config.Bind(GENERAL_SECTION, "ShowWarperSlot", false,
-                "Should additional warper only slot be visible. " +
-                "Note #1: Slot number 6+ will not take anything from incoming belts. " + 
-                "Note #2: Enabling this may help with mod compatibility.");
-            
             General.WarperMaxValue = config.Bind(GENERAL_SECTION, "WarperMaxValue", 100,
                 new ConfigDescription("Default number of items set for warper slot. Note: Should be in increments of 100. Otherwise may cause issues.",
                     new AcceptableValueRange<int>(0, 10000), new { }));
