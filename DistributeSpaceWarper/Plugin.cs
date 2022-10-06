@@ -15,7 +15,6 @@ namespace DistributeSpaceWarper
 
         public void Awake()
         {
-            _logger = base.Logger;
             Harmony harmony = new Harmony(PluginGuid);
             DistributeSpaceWarper.Config.Init(Config);
             harmony.PatchAll(typeof(Plugin));

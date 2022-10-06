@@ -16,7 +16,8 @@
   &lt;Assembly Path="D:\DSPMods\Libraries\UnityEngine.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.2\System.Xml.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
-	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=dd23704e_002D3c0c_002D4d6b_002D8eb1_002Df847cfb2bc2d_0023DistributeSpaceWarper/@EntryIndexedValue">True</s:Boolean>
+	
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=dd23704e_002D3c0c_002D4d6b_002D8eb1_002Df847cfb2bc2d_0023StationRangeLimiter/@EntryIndexedValue">True</s:Boolean>
 	
 	
 	
