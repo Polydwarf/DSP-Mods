@@ -12,7 +12,6 @@
             public static ConfigEntry<ELogisticStorage> WarperLocalMode;
             public static ConfigEntry<ELogisticStorage> WarperRemoteMode;
             public static ConfigEntry<int> WarperMaxValue;
-            public static ConfigEntry<bool> ShowWarperSlot;
             public static ConfigEntry<bool> WarpersRequiredToggleAutomation;
         }
         
